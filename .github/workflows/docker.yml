@@ -143,8 +143,21 @@ jobs:
           OPENROUTER_API_KEY: ""
           OPENAI_API_KEY: ""
           NOUS_API_KEY: ""
+          # Profile every docker subprocess call so we can diagnose why
+          # the suite is slow on CI vs. local. The report is uploaded
+          # as an artifact below.
+          HERMES_DOCKER_TEST_PROFILE: "1"
         run: |
           scripts/run_tests.sh tests/docker/ --file-timeout 600
+
+      - name: Upload docker test profile
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: docker-test-profile-${{ matrix.arch }}
+          path: docker-test-profile.json
+          retention-days: 14
+          if-no-files-found: warn
 
   # ---------------------------------------------------------------------------
   # Stitch both per-arch digests into a single tagged multi-arch manifest.

@@ -8,6 +8,10 @@ Override the image with ``HERMES_TEST_IMAGE`` env var to point at a pre-built
 image (faster local iteration); otherwise the ``built_image`` fixture builds
 the repo's Dockerfile once per session.
 
+Profiling: set ``HERMES_DOCKER_TEST_PROFILE=1`` to instrument every
+``subprocess.run`` that invokes ``docker``. A per-test breakdown of
+subcommand timings is written to ``docker-test-profile.json`` and a
+summary is printed to stderr at session end. See ``profiling.py``.
 """
 from __future__ import annotations
 
@@ -18,6 +22,8 @@ import time
 from collections.abc import Iterator
 
 import pytest
+
+pytest_plugins = ["tests.docker.profiling"]
 
 IMAGE_TAG = os.environ.get("HERMES_TEST_IMAGE", "hermes-agent-harness:latest")
 
