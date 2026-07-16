@@ -62,6 +62,14 @@ try {
 
   const apply = await page.evaluate(() => window.hermesDesktop.updates.apply())
   assert.deepEqual({ ok: apply.ok, handedOff: apply.handedOff }, { ok: true, handedOff: true })
+  // Playwright owns v1's debugger connection, so production's app.quit()
+  // cannot complete until the harness detaches. End v1 immediately after the
+  // successful handoff so updater-owned v2 can acquire the single-instance
+  // lock and relaunch normally.
+  const v1 = app.process()
+  const v1Exited = new Promise(resolve => v1.once('exit', resolve))
+  v1.kill('SIGKILL')
+  await v1Exited
 
   await poll(
     () => fs.readFileSync(path.join(hermesHome, 'current.txt'), 'utf8').trim(),

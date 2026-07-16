@@ -8703,7 +8703,7 @@ if (process.env.HERMES_DESKTOP_E2E_VERSION_FILE) {
   app.whenReady().then(() => {
     fs.writeFileSync(
       process.env.HERMES_DESKTOP_E2E_VERSION_FILE!,
-      `${JSON.stringify({ appVersion: resolveHermesVersion(), execPath: process.execPath })}\n`
+      `${JSON.stringify({ appVersion: resolveHermesVersion(), execPath: process.execPath, pid: process.pid })}\n`
     )
   })
 }

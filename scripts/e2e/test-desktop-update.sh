@@ -17,9 +17,13 @@ export HERMES_HOME="$WORK/home"
 export HERMES_DESKTOP_E2E_RELEASES="$WORK/releases"
 mkdir -p "$HERMES_HOME" "$HERMES_DESKTOP_E2E_RELEASES"
 cleanup() {
-    pkill -f "HermesUpdaterE2E-$PPID" 2>/dev/null || true
+    if [ -f "$HERMES_HOME/desktop-e2e-version.json" ]; then
+        relaunch_pid=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("pid", ""))' \
+            "$HERMES_HOME/desktop-e2e-version.json" 2>/dev/null || true)
+        [ -z "$relaunch_pid" ] || kill "$relaunch_pid" 2>/dev/null || true
+    fi
     chmod -R u+w "$WORK" 2>/dev/null || true
-    rm -rf "$WORK"
+    rm -rf "$WORK" || { sleep 1; rm -rf "$WORK"; }
 }
 trap cleanup EXIT
 
